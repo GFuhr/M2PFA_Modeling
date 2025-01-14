@@ -1,0 +1,54 @@
+.gitignore.good
+*.pyc
+*.npy
+.coverage 
+Untitled.ipynb
+untitled.ipynb
+
+#jupyter checkpoint
+python/.ipynb_checkpoints/
+
+#python cache folders
+python/advdiff/__pycache__/
+python/h2d/__pycache__/
+python/utils/__pycache__/
+python/.idea/
+python/run/
+
+
+# test run files
+python/*.txt
+
+#visual studio configuration files
+C/TP2/H2D/*
+C/TP2/scripts
+C/TP2/obj/*.o
+C/TP2/obj/Debug/*
+C/TP2/obj/Release/*
+C/TP2/obj/gcc/*.o
+C/TP2/bin/*
+!C/TP2/bin/dummy.git
+C/TP1/*.exe
+#outputs
+C/TP2/*.dat
+C/TP2/*.m
+C/TP2/*.asv
+C/TP1/*.o
+C/TP1/out__*.dat
+#personnal makes
+C/TP2/make_*
+
+C/TP2/H2D/Debug/*
+C/TP2/H2D/release/*
+
+!C/TP2/H2D/Debug/dummy.git
+!C/TP2/H2D/Release/dummy.git
+!C/TP2/H2D/H2D.sln
+!C/TP2/H2D/H2D120109.vsp
+!C/TP2/H2D/H2D.vcxproj
+!C/TP2/H2D/H2D.depend
+!C/TP2/H2D/H2D.layout
+!C/TP2/H2D/H2D.cbp
+!C/TP2/H2D/H2D.opensdf
+!C/TP2/H2D/H2D.suo
+!C/TP2/H2D/H2D.sdf

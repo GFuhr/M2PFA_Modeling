@@ -1,0 +1,10 @@
+
+opython:S117n"XRename this local variable "Field_p" to match the regular expression ^[_a-z][a-z0-9_]*$.(ı“Ä∏
+tpython:S117<"]Rename this local variable "Field_p_init" to match the regular expression ^[_a-z][a-z0-9_]*$.(È°çΩ
+npython:S117o"WRename this local variable "Frames" to match the regular expression ^[_a-z][a-z0-9_]*$.(ì±´∑
+ppython:S117I"TRename this local variable "Mat" to match the regular expression ^[_a-z][a-z0-9_]*$.(éÍÿã˝ˇˇˇˇ
+jpython:S1170"SRename this local variable "Nx" to match the regular expression ^[_a-z][a-z0-9_]*$.(»ãÖØ
+rpython:S117p"[Rename this local variable "TimeOutput" to match the regular expression ^[_a-z][a-z0-9_]*$.(˘≥›™
+qpython:S1173"URename this local variable "Tmax" to match the regular expression ^[_a-z][a-z0-9_]*$.(¿ø≠â˘ˇˇˇˇ
+npython:S1174"XRename this local variable "Toutput" to match the regular expression ^[_a-z][a-z0-9_]*$.(µ¡£
+lpython:S3776'"TRefactor this function to reduce its Cognitive Complexity from 28 to the 15 allowed.(ûñ°∂
