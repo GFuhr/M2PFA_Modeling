@@ -256,7 +256,7 @@ cdef class MatrixSolver(object):
         self.iter = 1000
         self.isinit = False
 
-    cdef init_variables(self) noexcept:
+    cdef void init_variables(self) noexcept:
         self.isinit = True
         self.dummy = np.zeros(self.size, dtype=np.double)
         self.r_i = np.zeros(self.size, dtype=np.double)

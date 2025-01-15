@@ -13,6 +13,6 @@ cdef class MatrixSolver:
         double[:,::1] operator
         double[::1] dummy, r_i, s_i, v_i, p_i, t_i, r_hat_0
         
-    cdef init_variables(self) noexcept
+    cdef void init_variables(self) noexcept
     cpdef double[:,::1] create_matrix(self, const double[::1] vector_op, const long[::1] bc) noexcept
     cpdef void solve(self, const double[::1] rhs, double[::1] sol) noexcept
