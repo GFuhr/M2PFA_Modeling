@@ -265,29 +265,29 @@ cdef class MatrixSolver(object):
         self.p_i = np.zeros(self.size, dtype=np.double)
         self.t_i = np.zeros(self.size, dtype=np.double)
         self.r_hat_0 = np.zeros(self.size, dtype=np.double)
-        self.operator = np.zeros(shape=(3,5), dtype=np.double)
+        self.matrix_op = np.zeros(shape=(3,5), dtype=np.double)
 
     cpdef double[:,::1] create_matrix(self, const double[::1] vector_op,
                                       const long[::1] bc) noexcept:
         if not self.isinit:
             self.init_variables()
 
-        self.operator[0,1:4] = vector_op[0:3]
+        self.matrix_op[0,1:4] = vector_op[0:3]
         # to take into account dirichlet or neumann bondary conditions on the left
-        self.operator[0,3] += bc[0]*vector_op[0]
-        self.operator[0,1] = 0
+        self.matrix_op[0,3] += bc[0]*vector_op[0]
+        self.matrix_op[0,1] = 0
         # case where box is periodic on the left side
-        self.operator[0,4] = bc[1]*vector_op[0]
+        self.matrix_op[0,4] = bc[1]*vector_op[0]
 
-        self.operator[1,1:4] = vector_op[0:3]
+        self.matrix_op[1,1:4] = vector_op[0:3]
 
-        self.operator[2,1:4] = vector_op[0:3]
+        self.matrix_op[2,1:4] = vector_op[0:3]
         # to take into account dirichlet or neumann bondary conditions on the left
-        self.operator[2,1] += bc[2]*vector_op[2]
-        self.operator[2,3] = 0
+        self.matrix_op[2,1] += bc[2]*vector_op[2]
+        self.matrix_op[2,3] = 0
         # case where box is periodic on the right side
-        self.operator[2,0] = bc[3]*vector_op[2]
-        return self.operator
+        self.matrix_op[2,0] = bc[3]*vector_op[2]
+        return self.matrix_op
 
     # solve a system : A * x = rhs
     cpdef void solve(self,  const double[::1] rhs,
@@ -299,6 +299,6 @@ cdef class MatrixSolver(object):
 
         :return: No return
         """
-        bicgstab_c(self.operator, rhs[1:rhs.shape[0]-1], x[1:x.shape[0]-1],  self.dummy,
+        bicgstab_c(self.matrix_op, rhs[1:rhs.shape[0]-1], x[1:x.shape[0]-1],  self.dummy,
                    self.r_i, self.s_i, self.v_i, self.p_i, self.t_i, self.r_hat_0, self.tol, self.iter)
 

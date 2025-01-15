@@ -15,7 +15,7 @@ cimport cython
 from cython.parallel import prange, parallel
 from cython.parallel cimport prange, parallel
 
-from bicgstab cimport MatrixSolver
+from .bicgstab cimport MatrixSolver
 
 
 @cython.boundscheck(False)

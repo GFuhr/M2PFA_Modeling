@@ -16,7 +16,7 @@ python/h2d/__pycache__/
 python/utils/__pycache__/
 python/.idea/
 python/run/
-
+python/build/
 
 # test run files
 python/*.txt

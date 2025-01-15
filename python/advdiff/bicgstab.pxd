@@ -10,7 +10,7 @@ cdef class MatrixSolver:
         public double tol
         public int iter
         public bint isinit
-        double[:,::1] operator
+        double[:,::1] matrix_op
         double[::1] dummy, r_i, s_i, v_i, p_i, t_i, r_hat_0
         
     cdef void init_variables(self) noexcept

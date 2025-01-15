@@ -1,10 +1,11 @@
 def make_ext(modname, pyxfilename):
     from distutils.extension import Extension
+    import numpy
     return Extension(
         name=modname,
         sources=[pyxfilename],
-        include_dirs=['.'],
-        depends=['bicgstab.pxd'],
+        include_dirs=['.', numpy.get_include()],
+        depends=['bicgstab.pxd', 'bicgstab.pyx'],
         extra_compile_args=['-O2', '-march=native', '-fopenmp'],
         extra_link_args=['-fopenmp'],
         define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")]
