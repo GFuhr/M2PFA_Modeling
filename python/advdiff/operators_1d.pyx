@@ -15,7 +15,7 @@ cimport cython
 from cython.parallel import prange, parallel
 from cython.parallel cimport prange, parallel
 
-from advdiff.bicgstab cimport MatrixSolver
+from bicgstab cimport MatrixSolver
 
 
 @cython.boundscheck(False)
@@ -178,7 +178,7 @@ cdef void boundary(
 cdef void time_step(
                 double[::1] Field_p,
                 double[::1] pp1,
-                const double[::1] adv_factor) nogil noexcept:
+                const double[::1] adv_factor) noexcept nogil :
 
     advection_diffusion(adv_factor, Field_p, pp1 )
 
