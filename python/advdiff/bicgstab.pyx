@@ -265,7 +265,7 @@ cdef class MatrixSolver(object):
         self.operator = np.zeros(shape=(3,5), dtype=np.double)
 
     cpdef double[:,::1] create_matrix(self, const double[::1] vector_op,
-                                      const long[::1] bc):
+                                      const long[::1] bc noexcept
         if not self.isinit:
             self.init_variables()
 
@@ -288,7 +288,7 @@ cdef class MatrixSolver(object):
 
     # solve a system : A * x = rhs
     cpdef void solve(self,  const double[::1] rhs,
-                 double[::1] x):
+                 double[::1] x) noexcept:
         """
         resolve a system : A * x = rhs
         :param rhs: vector
