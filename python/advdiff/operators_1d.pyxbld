@@ -3,7 +3,7 @@ def make_ext(modname, pyxfilename):
     return Extension(
         name=modname,
         sources=[pyxfilename],
-        include_dirs=['.'],
+        include_dirs=['.', 'advdiff'],
         depends=['bicgstab.pxd'],
         extra_compile_args=['-O2', '-march=native', '-fopenmp'],
         extra_link_args=['-fopenmp'],
