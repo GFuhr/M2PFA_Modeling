@@ -1,3 +1,11 @@
+#cython: language_level=3
+#cython: boundscheck=False
+#cython: wraparound=False
+#cython: initializedcheck=False
+#cython: nonecheck=False
+#cython: cdivision=True
+#cython: warn.undeclared=True
+
 cdef class linearmatrix(object):
     cdef int size
     cdef double[:] tridiag_a

@@ -15,7 +15,7 @@ cimport cython
 from cython.parallel import prange, parallel
 from cython.parallel cimport prange, parallel
 
-from bicgstab cimport MatrixSolver
+from advdiff.bicgstab cimport MatrixSolver
 
 
 @cython.boundscheck(False)
@@ -188,7 +188,7 @@ cpdef void eule(
         double[::1] rhs,
         double[::1] Field_p,
         const double[::1] adv_factor,
-        const long[::1] bc):
+        const long[::1] bc) noexcept:
     """
         compute explicit euler time step
         Field_w = Field_w + dt* (-V d/dx + C d2/dx2)

@@ -18,15 +18,6 @@ dy = .4
 # Points in X direction
 Nx = 256
 
-# Points in Y direction
-Ny = 128
-
-# modes in Y direction
-Nm = 32
-
-# wave number in Y direction
-ky = 2 * pi / (Ny * dy)
-
 # end time
 Tmax = 10000 * dt
 
@@ -83,24 +74,6 @@ def initfield_1d(x: np.array):
     return u0
 
 
-def initfield_2d(x: np.array, y: np.array) -> np.array:
-    """
-    generate initial profile for H2D simulations,
-    :param x: meshgrid for X values
-    :param y: meshgrid for Y values
-    :return: 2D field
-    """
-    _dx = x[1] - x[0]
-    _dy = y[1] - y[0]
-    u0 = np.sin(x / x.max() + y / y.max())
-
-    # exemple for gate
-    u0[:, :] = 1
-    u0[0:u0.shape[0] // 4, :] = 0
-    u0[3 * u0.shape[0] // 4:-1, :] = 0
-    u0[:, 0:u0.shape[1] // 4] = 0
-    u0[:, 3 * u0.shape[1] // 4:-1] = 0
-    return u0
 
 
 # don't modify this function

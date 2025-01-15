@@ -3,14 +3,14 @@
 #cython: boundscheck=False
 #cython: wraparound=False
 #cython: initializedcheck=False
-#cython: cdivision=True
 #cython: nonecheck=False
+#cython: cdivision=True
+#cython: warn.undeclared=True
 import cython
 import numpy as np
-cimport numpy as np
+cimport numpy as cnp
 from cython.parallel import prange, parallel
 from libc.math cimport fabs
-
 
 
 
@@ -197,7 +197,7 @@ cdef void bicgstab_c(const double[:,::1] mat, const double[::1] b, double[::1] x
     """
     cdef Py_ssize_t i,j
     cdef Py_ssize_t vec_size = b.shape[0]
-    cdef double rho_i, beta, alpha, omega_i, res, rho_im1, rho0
+    cdef double rho_i, beta, alpha, omega_i, res, rho_im1, rho_0
     # cdef np.ndarray[np.double_t, ndim=1] dummy = np.zeros_like(x)
 
     triband_dot(mat, x, dummy, vec_size)
@@ -244,18 +244,6 @@ cdef void bicgstab_c(const double[:,::1] mat, const double[::1] b, double[::1] x
 # definition of a matrix representation used for implicit schemes
 #
 cdef class MatrixSolver(object):
-    cdef Py_ssize_t size
-    cdef double[::1] dummy
-    cdef double[::1]  r_i
-    cdef double[::1]  s_i
-    cdef double[::1]  v_i
-    cdef double[::1]  p_i
-    cdef double[::1]  t_i
-    cdef double[::1]  r_hat_0
-    cdef double[:,::1]  operator
-    cdef bint isinit
-    cdef double tol
-    cdef int iter
 
     def __cinit__(self, const Py_ssize_t size):
         self.size = size-2
@@ -298,11 +286,11 @@ cdef class MatrixSolver(object):
         self.operator[2,0] = bc[3]*vector_op[2]
         return self.operator
 
-    # routine d'inversion d'une matrice tridiagonale
+    # solve a system : A * x = rhs
     cpdef void solve(self,  const double[::1] rhs,
                  double[::1] x):
         """
-        routine d'inversion d'une matrice tridiagonale : A * x = rhs
+        resolve a system : A * x = rhs
         :param rhs: vector
         :param x: vector
 
