@@ -12,6 +12,9 @@ cimport numpy as cnp
 from cython.parallel import prange, parallel
 from libc.math cimport fabs
 
+# Make sure numpy is initialized
+cnp.import_array()
+
 
 
 @cython.boundscheck(False)
@@ -265,7 +268,7 @@ cdef class MatrixSolver(object):
         self.operator = np.zeros(shape=(3,5), dtype=np.double)
 
     cpdef double[:,::1] create_matrix(self, const double[::1] vector_op,
-                                      const long[::1] bc noexcept
+                                      const long[::1] bc) noexcept:
         if not self.isinit:
             self.init_variables()
 
