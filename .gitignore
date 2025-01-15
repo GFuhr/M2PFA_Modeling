@@ -10,6 +10,8 @@ python/.ipynb_checkpoints/
 
 #python cache folders
 python/advdiff/__pycache__/
+python/advdiff/*.cpp
+python/advdiff/*.so
 python/h2d/__pycache__/
 python/utils/__pycache__/
 python/.idea/
