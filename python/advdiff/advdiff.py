@@ -9,7 +9,6 @@ import pyximport
 import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
-from line_profiler import profile
 
 sys.path.append(os.path.normpath(os.path.join(os.path.realpath(__file__), "../..")))
 pyximport.install(setup_args={"include_dirs": np.get_include()})
@@ -35,7 +34,6 @@ figformat().apply()
 
 
 # parameters
-@profile
 def simulate(verbose: bool = False, save_files: bool = False, init=None, **kwargs):
     """
 
