@@ -9,8 +9,9 @@
 import cython
 import numpy as np
 cimport numpy as cnp
-from cython.parallel import prange, parallel
+#from cython.parallel import prange, parallel
 from libc.math cimport fabs
+from libc.stdio cimport printf
 
 # Make sure numpy is initialized
 cnp.import_array()
@@ -27,7 +28,7 @@ cdef void op_zero(
         cdef Py_ssize_t idx = 0
         cdef Py_ssize_t idx_end = m & ~3
 
-        for idx in prange(0, idx_end, 4):
+        for idx in range(0, idx_end, 4):
             x[idx] = 0.
             x[idx+1] = 0.
             x[idx+2] = 0.
@@ -57,7 +58,7 @@ cdef void triband_dot(const double[:,::1] band_matrix,
     bmm1 =  band_matrix[1,1]
     bm=  band_matrix[1,2]
     bmp1 =  band_matrix[1,3]
-    for idx in prange(1, matrix_size-1):
+    for idx in range(1, matrix_size-1):
         vec[idx] = bmm1*x[idx-1]+bm*x[idx]+bmp1*x[idx+1]
 
     idx = matrix_size-1
@@ -72,9 +73,9 @@ cdef double single_vec_dot(const double[::1] x, const Py_ssize_t vec_size) nogil
     cdef Py_ssize_t idx = 0
     cdef int idx_end = vec_size & ~3
 
-    for idx in prange(0, idx_end, 4):
+    for idx in range(0, idx_end, 4):
         dot += x[idx]*x[idx] + x[idx+1]*x[idx+1] + x[idx+2]*x[idx+2] + x[idx+3]*x[idx+3]
-    for idx in prange(idx_end, vec_size):
+    for idx in range(idx_end, vec_size):
         dot += x[idx]*x[idx]
 
     return dot
@@ -89,9 +90,9 @@ cdef double vec_dot(const double[::1] x, const double[::1] y,
     cdef Py_ssize_t idx = 0
     cdef Py_ssize_t idx_end = vec_size & ~3
 
-    for idx in prange(0, idx_end, 4):
+    for idx in range(0, idx_end, 4):
         dot += x[idx]*y[idx] + x[idx+1]*y[idx+1] + x[idx+2]*y[idx+2] + x[idx+3]*y[idx+3]
-    for idx in prange(idx_end, vec_size):
+    for idx in range(idx_end, vec_size):
         dot += x[idx]*y[idx]
     return dot
 
@@ -103,13 +104,13 @@ cdef void vec_xmy(double[::1] res, const double[::1] x, const double[::1] y, con
     cdef Py_ssize_t idx = 0
     cdef Py_ssize_t idx_end = vec_size & ~3
 
-    for idx in prange(0, idx_end, 4):
+    for idx in range(0, idx_end, 4):
         res[idx] = x[idx]-y[idx]
         res[idx+1] = x[idx+1]-y[idx+1]
         res[idx+2] = x[idx+2]-y[idx+2]
         res[idx+3] = x[idx+3]-y[idx+3]
 
-    for idx in prange(idx_end, vec_size):
+    for idx in range(idx_end, vec_size):
         res[idx] = x[idx]-y[idx]
 
 
@@ -122,13 +123,13 @@ cdef void vec_xpby(double[::1] res, const double[::1] x, const double[::1] y, co
     cdef Py_ssize_t idx = 0
     cdef Py_ssize_t idx_end = vec_size & ~3
 
-    for idx in prange(0, idx_end, 4):
+    for idx in range(0, idx_end, 4):
         res[idx] = x[idx]+factor*y[idx]
         res[idx+1] = x[idx+1]+factor*y[idx+1]
         res[idx+2] = x[idx+2]+factor*y[idx+2]
         res[idx+3] = x[idx+3]+factor*y[idx+3]
 
-    for idx in prange(idx_end, vec_size):
+    for idx in range(idx_end, vec_size):
         res[idx] = x[idx]+factor*y[idx]
 
 @cython.boundscheck(False) # compiler directive
@@ -139,13 +140,13 @@ cdef void dcopy(const Py_ssize_t vec_size, const double[::1] src, double[::1] de
     cdef Py_ssize_t idx = 0
     cdef Py_ssize_t idx_end = vec_size & ~3
 
-    for idx in prange(0, idx_end, 4):
+    for idx in range(0, idx_end, 4):
         dest[idx] = src[idx]
         dest[idx+1] = src[idx+1]
         dest[idx+2] = src[idx+2]
         dest[idx+3] = src[idx+3]
 
-    for idx in prange(idx_end, vec_size):
+    for idx in range(idx_end, vec_size):
         dest[idx] = src[idx]
 
 
@@ -160,13 +161,13 @@ cdef void d_axpbypcz(const Py_ssize_t vec_size, const double[::1] x, const doubl
     cdef Py_ssize_t idx = 0
     cdef Py_ssize_t idx_end = vec_size & ~3
 
-    for idx in prange(0, idx_end, 4):
+    for idx in range(0, idx_end, 4):
         z[idx] = a*x[idx]+b*y[idx]+c*z[idx]
         z[idx+1] = a*x[idx+1]+b*y[idx+1]+c*z[idx+1]
         z[idx+2] = a*x[idx+2]+b*y[idx+2]+c*z[idx+2]
         z[idx+3] = a*x[idx+3]+b*y[idx+3]+c*z[idx+3]
 
-    for idx in prange(idx_end, vec_size):
+    for idx in range(idx_end, vec_size):
         z[idx] = a*x[idx]+b*y[idx]+c*z[idx]
 
 
@@ -223,13 +224,20 @@ cdef void bicgstab_c(const double[:,::1] mat, const double[::1] b, double[::1] x
 
         # v_i =
         triband_dot(mat, p_i, v_i, vec_size)
-        alpha = rho_i / vec_dot(r_hat_0, v_i, vec_size)
+        rho_0 = vec_dot(r_hat_0, v_i, vec_size)
+        if fabs(rho_0) < 1e-8:
+            rho_0 = 1e-8
+        alpha = rho_i / rho_0
         #s_i = r_i - alpha * v_i
         vec_xpby(s_i, r_i, v_i, -alpha, vec_size)
 
         # t_i
         triband_dot(mat, s_i, t_i, vec_size)
-        omega_i = vec_dot(t_i, s_i, vec_size) / single_vec_dot(t_i, vec_size)
+        rho_0 = single_vec_dot(t_i, vec_size)
+        if rho_0 < 1e-8:
+            rho_0 = 1e-8
+
+        omega_i = vec_dot(t_i, s_i, vec_size) / rho_0
 
         # for j in range(vec_size):
         #     x[j] = x[j] + alpha * p_i[j] + omega_i * s_i[j]
@@ -291,7 +299,7 @@ cdef class MatrixSolver(object):
 
     # solve a system : A * x = rhs
     cpdef void solve(self,  const double[::1] rhs,
-                 double[::1] x) noexcept:
+                 double[::1] x)  noexcept:
         """
         resolve a system : A * x = rhs
         :param rhs: vector

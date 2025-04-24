@@ -12,8 +12,8 @@
 import cython
 cimport numpy as np
 cimport cython
-from cython.parallel import prange, parallel
-from cython.parallel cimport prange, parallel
+#from cython.parallel import prange, parallel
+#from cython.parallel cimport prange, parallel
 
 from .bicgstab cimport MatrixSolver
 
@@ -27,13 +27,13 @@ cdef void op_xpy(
     cdef Py_ssize_t idx = 0
     cdef Py_ssize_t idx_end = m & ~3
 
-    for idx in prange(0, idx_end, 4):
+    for idx in range(0, idx_end, 4):
             x[idx] += y[idx]
             x[idx+1] += y[idx+1]
             x[idx+2] += y[idx+2]
             x[idx+3] += y[idx+3]
 
-    for idx in prange(idx_end, m):
+    for idx in range(idx_end, m):
         x[idx] += y[idx]
 
 @cython.boundscheck(False)
@@ -45,7 +45,7 @@ cdef void op_copy(
     cdef Py_ssize_t idx = 0
     cdef Py_ssize_t idx_end = m & ~3
 
-    for idx in prange(0, idx_end, 4):
+    for idx in range(0, idx_end, 4):
         dest[idx] = src[idx]
         dest[idx + 1] = src[idx + 1]
         dest[idx + 2] = src[idx + 2]
@@ -67,7 +67,7 @@ cdef void op_axpby(
     cdef Py_ssize_t idx = 0
     cdef Py_ssize_t idx_end = m & ~3
 
-    for idx in prange(0, idx_end, 4):
+    for idx in range(0, idx_end, 4):
         y[idx] = a*x[idx]+b*y[idx]
         y[idx+1] = a*x[idx+1]+b*y[idx+1]
         y[idx+2] = a*x[idx+2]+b*y[idx+2]
@@ -84,8 +84,8 @@ cdef void op_xpby(
                    const double b) noexcept nogil:
     cdef Py_ssize_t i = 0
     cdef Py_ssize_t m=x.shape[0]
-    with nogil, parallel(num_threads=8):
-        for i in prange(0, m):
+    with nogil:#, parallel(num_threads=8):
+        for i in range(0, m):
             x[i] += b*y[i]
 
 
@@ -100,8 +100,8 @@ cdef void diffusion(const double dx, const double c,
     cdef Py_ssize_t i
     cdef double hx = c/(dx*dx)
 
-    with nogil, parallel(num_threads=8):
-        for i in prange(1, m):
+    with nogil:#, parallel(num_threads=8):
+        for i in range(1, m):
             u[i] += hx*(v[i+1] + v[i-1] - 2*v[i])
 
 
@@ -116,8 +116,8 @@ cdef void diffusion_coef(const double dx, const double Lx,
     cdef Py_ssize_t i
     cdef double hx = 1/dx**2
     cdef double lxm2 = 1./(Lx*Lx)
-    with nogil, parallel(num_threads=8):
-        for i in prange(1, m):
+    with nogil:#, parallel(num_threads=8):
+        for i in range(1, m):
             u[i] += lxm2*(chi[i]*hx*(v[i+1] + v[i-1] - 2*v[i]) + dchi[i]*(v[i+1] + v[i-1])*.5/dx)
 
 
@@ -130,8 +130,8 @@ cdef void advection(double dx, const double[3] adv_factor,
     cdef Py_ssize_t m = u.shape[0]-1
     cdef Py_ssize_t i, start = 1
 
-    with nogil, parallel(num_threads=4):
-        for i in prange(start, m):
+    with nogil:#, parallel(num_threads=4):
+        for i in range(start, m):
                 u[i] += (adv_factor[0]*v[i-1] + adv_factor[1]*v[i] + adv_factor[2]*v[i+1])
 
 @cython.boundscheck(False)
@@ -243,8 +243,8 @@ cdef void RK_step(
     time_step(Field_p, ki, adv_factor)
     op_copy(ppi, Field_p)
     op_axpby(ki, gamma, ppi, 1)
-   #  for idx_x in prange(start, m):
-   #      ppi[idx_x] = Field_p[idx_x] + gamma*ki[idx_x]
+    for idx_x in range(start, m):
+        ppi[idx_x] = Field_p[idx_x] + gamma*ki[idx_x]
     boundary(ppi, bc)
 
 

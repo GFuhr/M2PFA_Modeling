@@ -126,6 +126,7 @@ def animated_plot_1d(Frames):
     anim = animation.FuncAnimation(fig, update_line,
                                    init_func=init,
                                    frames=anim_length,  blit=True)
+    plt.show()
     return anim
 
 

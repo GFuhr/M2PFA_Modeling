@@ -1,10 +1,10 @@
 from .bicgstab import MatrixSolver
 from .operators_1d import eule, euli, RK2, RK4, CranckN
-from .advdiff import simulate as simulate_1d
+from .advdiff import simulate
 
 __all__ = [
     "MatrixSolver",
-    "simulate_1d",
+    "simulate",
     "eule",
     "euli",
     "RK2",
