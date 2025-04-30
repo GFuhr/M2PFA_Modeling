@@ -89,7 +89,7 @@ def simulate(verbose=False, save_files=False, **kwargs):
     # main loop
     t = 0
     tlast = 0
-    Field_p = Field_p.astype(np.complex)
+    Field_p = Field_p.astype(np.complex128)
     Frames = [Field_p.copy(),]
 
     iterations = 0
