@@ -33,8 +33,8 @@ cdef void diffusion_spectral(double dx, double ky, double C, \
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef advection_spectral(double dx, double ky, double V, \
-    double[:, ::1] v, \
-    double[:, ::1] u):
+    complex[:, ::1] v, \
+    complex[:, ::1] u):
     cdef int Ny = u.shape[0]-1
     cdef int Nx = u.shape[1]
     cdef int m,x
@@ -52,7 +52,7 @@ cdef advection_spectral(double dx, double ky, double V, \
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef boundary(
-    double[:, ::1] u):
+    complex[:, ::1] u):
     cdef int Nx = u.shape[1]
     cdef int Ny = u.shape[0]
     cdef int m
@@ -64,8 +64,8 @@ cdef boundary(
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def time_step(
-    double[:, ::1] Field_p, \
-    double[:, ::1] pp1, **kwargs):
+    complex[:, ::1] Field_p, \
+    complex[:, ::1] pp1, **kwargs):
     cdef int Nx = Field_p.shape[1]-1
     cdef int Nm = Field_p.shape[0]
     cdef int idx_x, m
@@ -86,8 +86,8 @@ def time_step(
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def eule(
-    double[:, ::1] rhs, \
-    double[:, ::1] un, **kwargs):
+    complex[:, ::1] rhs, \
+    complex[:, ::1] un, **kwargs):
 
     cdef int Nm = un.shape[0]
     cdef int n = un.shape[1]-1
@@ -107,10 +107,10 @@ def eule(
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def RK4_step(
-    double[:, ::1] un, \
-    double[:, ::1] u_eval, \
-    double[:, ::1] ki, \
-    double[:, ::1] yi, **kwargs):
+    complex[:, ::1] un, \
+    complex[:, ::1] u_eval, \
+    complex[:, ::1] ki, \
+    complex[:, ::1] yi, **kwargs):
 
     cdef int Nm = un.shape[0]
     cdef int Nx = un.shape[1]-1
@@ -129,10 +129,10 @@ def RK4_step(
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def RK2(
-    double[:, ::1] k1, \
-    double[:, ::1] k2, \
-    double[:, ::1] y1, \
-    double[:, ::1] Field_p,
+    complex[:, ::1] k1, \
+    complex[:, ::1] k2, \
+    complex[:, ::1] y1, \
+    complex[:, ::1] Field_p,
              **kwargs):
 
     cdef int Nm = Field_p.shape[0]
@@ -160,14 +160,14 @@ def RK2(
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def RK4(
-    double[:, ::1] k1, \
-    double[:, ::1] k2, \
-    double[:, ::1] k3, \
-    double[:, ::1] k4, \
-    double[:, ::1] y1, \
-    double[:, ::1] y2, \
-    double[:, ::1] y3, \
-    double[:, ::1] Field_p,
+    complex[:, ::1] k1, \
+    complex[:, ::1] k2, \
+    complex[:, ::1] k3, \
+    complex[:, ::1] k4, \
+    complex[:, ::1] y1, \
+    complex[:, ::1] y2, \
+    complex[:, ::1] y3, \
+    complex[:, ::1] Field_p,
              **kwargs):
 
     cdef int Nm = Field_p.shape[0]
@@ -203,7 +203,7 @@ def RK4(
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def compute_real_field(double dx, double dy,\
-    double[:, ::1] Field_C, \
+    complex[:, ::1] Field_C, \
     double[:, ::1] Field_R):
 
     cdef int Nx = Field_C.shape[1]
@@ -223,7 +223,7 @@ def compute_real_field(double dx, double dy,\
 @cython.wraparound(False)
 def compute_spectral_field(double dx, double dy,\
     double[:, ::1] Field_R, \
-    double[:, ::1] Field_C):
+    complex[:, ::1] Field_C):
 
     cdef int Nx = Field_C.shape[1]
     cdef int Nm = Field_C.shape[0]
