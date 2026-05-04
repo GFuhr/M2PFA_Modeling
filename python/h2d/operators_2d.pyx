@@ -13,8 +13,8 @@ ctypedef np.double_t DTYPE_t
 
 cdef void diffusion(double dx, double dy, double C, \
     int iNx, int iNy, \
-    double[:, ::1] v, \
-    double[:, ::1] u) nogil noexcept :
+    const double[:, ::1] v , \
+    double[:, ::1] u ) noexcept nogil :
     cdef int Nx = iNx-1
     cdef int Ny = iNy-1
     cdef int iy, ix
@@ -33,8 +33,8 @@ cdef void diffusion(double dx, double dy, double C, \
 
 cdef void advection(double dx, double dy, double V, \
     int iNx, int iNy, \
-    double[:, ::1] v, \
-        double[:, ::1] u) nogil noexcept :
+    const double[:, ::1] v, \
+        double[:, ::1] u) noexcept nogil :
     cdef int Nx = iNx-1
     cdef int Ny = iNy-1
     cdef int iy, ix
@@ -49,7 +49,7 @@ cdef void advection(double dx, double dy, double V, \
 
 
 cdef void boundary(
-    double[:, ::1] u) nogil  noexcept :
+    double[:, ::1] u ) noexcept nogil :
     cdef int Nx = u.shape[1]
     cdef int Ny = u.shape[0]
     cdef int iy , ix
@@ -68,7 +68,7 @@ cdef void boundary(
 
 
 cdef void null_bc(
-    double[:, ::1] u) nogil noexcept :
+    double[:, ::1] u ) noexcept nogil :
     """
     function to define to implement the null boundary condition
     :param u: 
@@ -93,8 +93,8 @@ cdef void null_bc(
 
 
 cdef void time_step(
-        double[:, ::1] un, \
-            double[:, ::1] rhs, int Nx, int Ny, double C, double V, double dx, double dy) nogil noexcept :
+        double[:, ::1] un , \
+            double[:, ::1] rhs , int Nx, int Ny, double C, double V, double dx, double dy)  noexcept nogil :
 
     cdef int idx_x, idx_y
 
@@ -111,8 +111,8 @@ cdef void time_step(
 
 
 def eule(
-    double[:, ::1] rhs, \
-    double[:, ::1] un, **kwargs):
+    double[:, ::1] rhs , \
+    double[:, ::1] un , **kwargs):
 
     cdef int m = un.shape[0]-1
     cdef int n = un.shape[1]-1
@@ -135,9 +135,9 @@ def eule(
         null_bc(un)
 
 
-def euli(LinearMatrix2D matA, \
-         double[:, ::1] pp1, \
-         double[:, ::1] Field_p, **kwargs):
+def euli(LinearMatrix2D matA , \
+         double[:, ::1] pp1 , \
+         double[:, ::1] Field_p , **kwargs):
     cdef int m = Field_p.shape[0]-1
     cdef int n = Field_p.shape[1]-1
     cdef int idx_x, idx_y
@@ -160,10 +160,10 @@ def euli(LinearMatrix2D matA, \
 
 
 def RK_step(
-    double[:, ::1] un, \
-    double[:, ::1] u_eval, \
-    double[:, ::1] ki, \
-    double[:, ::1] yi, **kwargs):
+    double[:, ::1] un , \
+    double[:, ::1] u_eval , \
+    double[:, ::1] ki , \
+    double[:, ::1] yi , **kwargs):
 
     cdef int m = un.shape[0]-1
     cdef int n = un.shape[1]-1
@@ -189,8 +189,8 @@ def RK4(
     double[:, ::1] k4, \
     double[:, ::1] y1, \
     double[:, ::1] y2, \
-    double[:, ::1] y3, \
-    double[:, ::1] Field_p,
+    double[:, ::1] y3 , \
+    double[:, ::1] Field_p ,
              **kwargs):
 
     cdef int m = Field_p.shape[0]
