@@ -312,7 +312,7 @@ cpdef void RK2(
     #             k2[idx_x] = 0
     #             y1[idx_x] = 0
     #gamma = .5
-    RK_step(Field_p, k1, y1, adv_factor, bc, .5)
+    RK_step(Field_p,Field_p, k1, y1, adv_factor, bc, .5)
     #gamma = 1
     time_step(y1, k2, adv_factor)
 

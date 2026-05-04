@@ -33,8 +33,8 @@ cdef void diffusion_spectral(double dx, double ky, double C, \
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef advection_spectral(double dx, double ky, double V, \
-    complex[:, ::1] v, \
-    complex[:, ::1] u):
+    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] v, \
+    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] u):
     cdef int Ny = u.shape[0]-1
     cdef int Nx = u.shape[1]
     cdef int m,x
@@ -52,7 +52,7 @@ cdef advection_spectral(double dx, double ky, double V, \
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef boundary(
-    complex[:, ::1] u):
+    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] u):
     cdef int Nx = u.shape[1]
     cdef int Ny = u.shape[0]
     cdef int m
@@ -64,8 +64,8 @@ cdef boundary(
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def time_step(
-    complex[:, ::1] Field_p, \
-    complex[:, ::1] pp1, **kwargs):
+    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] Field_p, \
+    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] pp1, **kwargs):
     cdef int Nx = Field_p.shape[1]-1
     cdef int Nm = Field_p.shape[0]
     cdef int idx_x, m
