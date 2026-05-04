@@ -231,6 +231,7 @@ cpdef void CranckN(MatrixSolver matA,
 @cython.wraparound(False)
 cdef void RK_step(
         double[::1] Field_p,
+        double[::1] u_eval, \
         double[::1] ki,
         double[::1] ppi,
         const double[::1] adv_factor,
@@ -240,11 +241,12 @@ cdef void RK_step(
     cdef Py_ssize_t m = Field_p.shape[0]-1
     cdef Py_ssize_t idx_x, start = 1
 
-    time_step(Field_p, ki, adv_factor)
+    time_step(u_eval, ki, adv_factor)
     op_copy(ppi, Field_p)
+    # ppi = ppi + gamma*ki
     op_axpby(ki, gamma, ppi, 1)
-    for idx_x in range(start, m):
-        ppi[idx_x] = Field_p[idx_x] + gamma*ki[idx_x]
+    # for idx_x in range(start, m):
+    #     ppi[idx_x] = Field_p[idx_x] + gamma*ki[idx_x]
     boundary(ppi, bc)
 
 
@@ -267,12 +269,14 @@ cpdef void RK4(
     cdef Py_ssize_t idx_x, idx_y, start = 1
     cdef double gamma = 0.
 
+    k1[:] = 0; k2[:] = 0; k3[:] = 0; k4[:] = 0
+
     gamma = .5
-    RK_step(Field_p, k1, y1, adv_factor, bc, gamma)
+    RK_step(Field_p, Field_p, k1, y1, adv_factor, bc, gamma)
     gamma = .5
-    RK_step(y1, k2, y2, adv_factor, bc, gamma)
+    RK_step(Field_p, y1, k2, y2, adv_factor, bc, gamma)
     gamma = 1
-    RK_step(y2, k3, y3, adv_factor, bc, gamma)
+    RK_step(Field_p, y2, k3, y3, adv_factor, bc, gamma)
     time_step(y3, k4, adv_factor)
 
     # 1/3(k2+k3)->k3
