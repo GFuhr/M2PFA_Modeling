@@ -1,5 +1,5 @@
 #!python
-#cython: language_level=3
+#cython: language_level=3, boundscheck=False, wraparound=False, cdivision=True, initializedcheck=False
 
 import numpy as np
 import cython
@@ -13,9 +13,9 @@ ctypedef np.double_t DTYPE_REAL_t
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef diffusion_spectral(double dx, double ky, double C, \
+cdef void diffusion_spectral(double dx, double ky, double C, \
     np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] v, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] u):
+    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] u) nogil noexcept :
     cdef int Ny = u.shape[0]
     cdef int Nx = u.shape[1]-1
     cdef int x,m
@@ -33,8 +33,8 @@ cdef diffusion_spectral(double dx, double ky, double C, \
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef advection_spectral(double dx, double ky, double V, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] v, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] u):
+    double[:, ::1] v, \
+    double[:, ::1] u):
     cdef int Ny = u.shape[0]-1
     cdef int Nx = u.shape[1]
     cdef int m,x
@@ -52,7 +52,7 @@ cdef advection_spectral(double dx, double ky, double V, \
 @cython.boundscheck(False)
 @cython.wraparound(False)
 cdef boundary(
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] u):
+    double[:, ::1] u):
     cdef int Nx = u.shape[1]
     cdef int Ny = u.shape[0]
     cdef int m
@@ -64,8 +64,8 @@ cdef boundary(
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def time_step(
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] Field_p, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] pp1, **kwargs):
+    double[:, ::1] Field_p, \
+    double[:, ::1] pp1, **kwargs):
     cdef int Nx = Field_p.shape[1]-1
     cdef int Nm = Field_p.shape[0]
     cdef int idx_x, m
@@ -86,8 +86,8 @@ def time_step(
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def eule(
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] rhs, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] un, **kwargs):
+    double[:, ::1] rhs, \
+    double[:, ::1] un, **kwargs):
 
     cdef int Nm = un.shape[0]
     cdef int n = un.shape[1]-1
@@ -107,16 +107,17 @@ def eule(
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def RK4_step(
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] un, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] ki, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] yi, **kwargs):
+    double[:, ::1] un, \
+    double[:, ::1] u_eval, \
+    double[:, ::1] ki, \
+    double[:, ::1] yi, **kwargs):
 
     cdef int Nm = un.shape[0]
     cdef int Nx = un.shape[1]-1
     cdef int idx_x, m
     cdef double gamma = kwargs.get('gamma', .5)
 
-    time_step(un, ki, **kwargs)
+    time_step(u_eval, ki, **kwargs)
     with nogil, parallel(num_threads=4):
         for m in prange(0, Nm):
             for idx_x in range(1, Nx):
@@ -124,13 +125,14 @@ def RK4_step(
     boundary(yi)
 
 
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def RK2(
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] k1, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] k2, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] y1, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] Field_p,
+    double[:, ::1] k1, \
+    double[:, ::1] k2, \
+    double[:, ::1] y1, \
+    double[:, ::1] Field_p,
              **kwargs):
 
     cdef int Nm = Field_p.shape[0]
@@ -138,12 +140,7 @@ def RK2(
     cdef int idx_x, m
     cdef double dt = kwargs.get('dt')
 
-    with nogil, parallel(num_threads=4):
-        for m in prange(0, Nm):
-            for idx_x in range(0, n):
-                k1[m, idx_x] = 0
-                k2[m, idx_x] = 0
-                y1[m, idx_x] = 0
+    k1[:] = 0; k2[:] = 0
 
     # y1 = p + dt/2*k1
     kwargs['gamma'] = .5*dt
@@ -163,14 +160,14 @@ def RK2(
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def RK4(
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] k1, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] k2, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] k3, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] k4, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] y1, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] y2, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] y3, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] Field_p,
+    double[:, ::1] k1, \
+    double[:, ::1] k2, \
+    double[:, ::1] k3, \
+    double[:, ::1] k4, \
+    double[:, ::1] y1, \
+    double[:, ::1] y2, \
+    double[:, ::1] y3, \
+    double[:, ::1] Field_p,
              **kwargs):
 
     cdef int Nm = Field_p.shape[0]
@@ -178,28 +175,19 @@ def RK4(
     cdef int idx_x, m
     cdef double dt = kwargs.get('dt')
 
-    with nogil, parallel(num_threads=4):
-        for m in prange(0, Nm):
-            for idx_x in range(0, n):
-                k1[m, idx_x] = 0
-                k2[m, idx_x] = 0
-                k3[m, idx_x] = 0
-                k4[m, idx_x] = 0
-                y1[m, idx_x] = 0
-                y2[m, idx_x] = 0
-                y3[m, idx_x] = 0
+    k1[:] = 0; k2[:] = 0; k3[:] = 0; k4[:] = 0
 
     # y1 = p + dt/2*k1
     kwargs['gamma'] = .5*dt
-    RK4_step(Field_p, k1, y1, **kwargs)
+    RK4_step(Field_p, Field_p, k1, y1, **kwargs)
 
     # y2 = p + dt/2*k1
     kwargs['gamma'] = .5*dt
-    RK4_step(y1, k2, y2, **kwargs)
+    RK4_step(Field_p, y1, k2, y2, **kwargs)
 
     # y3 = p + dt*k2
     kwargs['gamma'] = dt
-    RK4_step(y2, k3, y3, **kwargs)
+    RK4_step(Field_p, y2, k3, y3, **kwargs)
 
     # k4 = rhs(y3)
     time_step(y3, k4, **kwargs)
@@ -215,8 +203,8 @@ def RK4(
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def compute_real_field(double dx, double dy,\
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] Field_C, \
-    np.ndarray[DTYPE_REAL_t, ndim=2, negative_indices=False, mode='c'] Field_R):
+    double[:, ::1] Field_C, \
+    double[:, ::1] Field_R):
 
     cdef int Nx = Field_C.shape[1]
     cdef int Nm = Field_C.shape[0]
@@ -234,8 +222,8 @@ def compute_real_field(double dx, double dy,\
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def compute_spectral_field(double dx, double dy,\
-    np.ndarray[DTYPE_REAL_t, ndim=2, negative_indices=False, mode='c'] Field_R, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] Field_C):
+    double[:, ::1] Field_R, \
+    double[:, ::1] Field_C):
 
     cdef int Nx = Field_C.shape[1]
     cdef int Nm = Field_C.shape[0]

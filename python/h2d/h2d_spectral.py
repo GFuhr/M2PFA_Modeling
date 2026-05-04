@@ -68,8 +68,8 @@ def simulate(verbose=False, save_files=False, **kwargs):
     Field_p = np.zeros(shape, dtype=np.complex128)
 
     # init fields and constants
-    Y, X = np.meshgrid(
-        dx * np.linspace(0, Nx, num=Nx), dy * np.linspace(0, Nm, num=2 * Nm - 1)
+    X, Y = np.meshgrid(
+        dx * np.linspace(0, Nx-2, num=Nx), dy * np.linspace(0, Nm, num=2 * Nm - 1)
     )
 
     U0 = initfield_2D(X, Y)
@@ -98,7 +98,7 @@ def simulate(verbose=False, save_files=False, **kwargs):
     if save_files:
         save_outputs(U0, run_number, as_text=True, prefix='advdiff_')
     with Timer() as tf:
-        while t < Tmax:
+      while t < Tmax+.5*dt:
             if global_params["scheme"] == "eule":
                 operators.eule(rhs, Field_p, **global_params)
             elif global_params["scheme"] == "euli":
@@ -114,7 +114,7 @@ def simulate(verbose=False, save_files=False, **kwargs):
             else:
                 raise ValueError("scheme not specified")
 
-            if (t - tlast) > Toutput:
+            if (t - tlast) >= Toutput:
                 if verbose:
                     print('processing.... {0}%'.format(int(100.*t/Tmax)))
 

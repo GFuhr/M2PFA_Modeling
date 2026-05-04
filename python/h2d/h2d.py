@@ -54,6 +54,7 @@ def simulate(verbose=False, save_files=False, init=None,  **kwargs):
     V = global_params["V"]
     current_scheme = global_params["scheme"].strip().lower()
 
+
     shape = (Ny, Nx)
     rhs = np.zeros(shape)
     # RK Fields
@@ -66,8 +67,9 @@ def simulate(verbose=False, save_files=False, init=None,  **kwargs):
     y3 = np.zeros(shape)
 
     # init fields and constants
-    Y, X = np.meshgrid(dx * np.linspace(0, Nx, num=Nx),
-                       dy * np.linspace(0, Ny, num=Ny))
+    X, Y = np.meshgrid(dx * np.linspace(-1, Nx-2, num=Nx),
+                       dy * np.linspace(-1, Ny-2, num=Ny))
+
 
     if init is None:
         Field_p = initfield_2D(X, Y)
@@ -96,7 +98,7 @@ def simulate(verbose=False, save_files=False, init=None,  **kwargs):
     if save_files:
         save_outputs(Field_p, run_number, as_text=True, prefix='advdiff_')
     with Timer() as tf:
-        while t < Tmax:
+        while t < Tmax+.5*dt:
 
             if current_scheme == "eule":
                 operators.eule(rhs,
@@ -120,7 +122,7 @@ def simulate(verbose=False, save_files=False, init=None,  **kwargs):
             else:
                 raise ValueError("scheme not specified")
 
-            if (t - tlast) > Toutput:
+            if (t - tlast) >= Toutput:
                 if verbose:
                     print('processing.... {0}%'.format(int(100.*t/Tmax)))
                 if save_files:
@@ -128,9 +130,10 @@ def simulate(verbose=False, save_files=False, init=None,  **kwargs):
                                  as_text=True, prefix='h2d_')
                 tlast += Toutput
                 Frames.append(np.array(Field_p))
+
             t += dt
             iterations += 1
-
+    print(t)
     print("number of frames {0}".format(len(Frames)))
     print("loop time  in µs {0}".format(tf.interval))
     print("used time for 1 time step in µs: {0:.2f}".format(tf.interval / iterations))

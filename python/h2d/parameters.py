@@ -17,10 +17,10 @@ Nx = 32
 Ny = 32
 
 # x step
-dx = 2*pi/Nx
+dx = 2*pi/(Nx-3)
 
 # y step (used only for H2D simulations)
-dy = 2*pi/Ny
+dy = 2*pi/(Ny-3)
 
 # Points in X direction
 Nx = 32
