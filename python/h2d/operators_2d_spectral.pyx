@@ -15,7 +15,7 @@ ctypedef np.double_t DTYPE_REAL_t
 @cython.wraparound(False)
 cdef void diffusion_spectral(double dx, double ky, double C, \
     np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] v, \
-    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] u) nogil noexcept :
+    np.ndarray[DTYPE_t, ndim=2, negative_indices=False, mode='c'] u) :
     cdef int Ny = u.shape[0]
     cdef int Nx = u.shape[1]-1
     cdef int x,m
